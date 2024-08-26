@@ -1,16 +1,16 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { VotingContract } from "../target/types/voting_contract";
+import { VotingApp } from "../target/types/voting_app";
 import { Keypair, SystemProgram } from "@solana/web3.js";
 
-describe("voting_contract", () => {
+describe("voting_app", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
-  const program = anchor.workspace.VotingContract as Program<VotingContract>;
+
+  const program = anchor.workspace.VotingApp as Program<VotingApp>;
 
   it("Is initialized!", async () => {
     const numOptions = 3;
-
     const [votingDataPda, bump] =
       await anchor.web3.PublicKey.findProgramAddress(
         [Buffer.from("voting_data")],
@@ -22,7 +22,7 @@ describe("voting_contract", () => {
       .accounts({
         votingData: votingDataPda,
         user: provider.wallet.publicKey,
-        systemProgram: SystemProgram.programId,
+        systemProgram:SystemProgram.programId,
       })
       .rpc();
 
@@ -32,7 +32,6 @@ describe("voting_contract", () => {
     const votingDataAccount = await program.account.votingData.fetch(
       votingDataPda
     );
-
     console.log("Initialized vote counts: ", votingDataAccount.voteCounts);
   });
 

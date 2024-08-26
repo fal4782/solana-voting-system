@@ -1,6 +1,7 @@
-import { VotingContract } from "./idl.types";
+import { VotingApp } from "./idl.types";
 
-export const IDL: VotingContract = {
+export const IDL: VotingApp = 
+{
   address: "AFeMMkA1C8ptiyAvP7tktUzbjXJrteksDYS2wEg81u6",
   metadata: {
     name: "votingContract",
