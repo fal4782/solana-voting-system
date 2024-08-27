@@ -2,6 +2,8 @@ import { IdlAccounts, Program } from "@coral-xyz/anchor";
 import { VotingApp } from "./idl.types"; // Replace 'VotingApp' with the correct name from your IDL
 import { IDL } from "./idl";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
+import { Buffer } from 'buffer';
+
 
 const programId = new PublicKey("AFeMMkA1C8ptiyAvP7tktUzbjXJrteksDYS2wEg81u6");
 const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
@@ -11,7 +13,6 @@ export const program = new Program<VotingApp>(IDL, programId, {
   connection,
 });
 
-// Replace 'poll' with 'voting_data' as it's the correct seed for your voting contract
 export const [votingDataPDA] = PublicKey.findProgramAddressSync(
   [Buffer.from("voting_data")],
   program.programId
@@ -19,4 +20,4 @@ export const [votingDataPDA] = PublicKey.findProgramAddressSync(
 
 // This is just a TypeScript type for the VotingData structure based on the IDL
 // We need this so TypeScript doesn't yell at us
-export type VotingData = IdlAccounts<VotingApp>["votingData"]; // Replace 'poll' with 'votingData'
+export type VotingData = IdlAccounts<VotingApp>["votingData"]; 
