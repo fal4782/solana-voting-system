@@ -1,22 +1,21 @@
 [toolchain]
 
 [features]
-seeds = true
+seeds = false
 skip-lint = false
 
-[programs.localnet]
-voting_app = "75GwYpCopgByConQ6dwwQtM8UYMnJsxWURLJwBp1L2hm"
-
 [programs.devnet]
-counter = "75GwYpCopgByConQ6dwwQtM8UYMnJsxWURLJwBp1L2hm"
+counter = "9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc"
+
+[programs.localnet]
+voting_contract = "9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
+cluster = "Devnet"
 wallet = "/home/falguni/.config/solana/id.json"
-
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
