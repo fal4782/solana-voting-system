@@ -1,23 +1,27 @@
 import { IdlAccounts, Program } from "@coral-xyz/anchor";
-import { VotingApp } from "./idl.types"; // Replace 'VotingApp' with the correct name from your IDL
-import { IDL } from "./idl";
+import { VotingContract, IDL } from "./idl";
 import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
-
-const programId = new PublicKey("AFeMMkA1C8ptiyAvP7tktUzbjXJrteksDYS2wEg81u6");
+const programId = new PublicKey("9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc");
 const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 
 // Initialize the program interface with the IDL, program ID, and connection.
-export const program = new Program<VotingApp>(IDL, programId, {
+export const program = new Program<VotingContract>(IDL, programId, {
   connection,
 });
 
-export const [votingDataPDA] = PublicKey.findProgramAddressSync(
-  [Buffer.from("voting_data")],
-  program.programId
-);
+// Utility function to find PDA for a given poll title
+export const findPollDataPDA = (pollTitle: string): PublicKey => {
+  const [pollDataPDA] = PublicKey.findProgramAddressSync(
+    [Buffer.from(pollTitle)], // Seed for PDA is the poll title converted to bytes
+    program.programId
+  );
+  return pollDataPDA;
+};
 
-// This is just a TypeScript type for the VotingData structure based on the IDL
-// We need this so TypeScript doesn't yell at us
-export type VotingData = IdlAccounts<VotingApp>["votingData"]; 
+// This is the TypeScript type for the PollData structure based on the IDL.
+export type PollData = IdlAccounts<VotingContract>["pollData"];
+
+// Example usage:
+// const pda = findPollDataPDA("my_poll_title");
