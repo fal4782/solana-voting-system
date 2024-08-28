@@ -1,53 +1,20 @@
-import { useEffect, useState } from "react";
-import { useConnection } from "@solana/wallet-adapter-react";
-import { program, votingDataPDA, VotingData } from "../anchor/setup";
+// components/PollList.tsx
+import React from "react";
+import { usePollData } from "../hooks/usePollData";
+import PollItem from "./PollItem";
 
-const PollList = () => {
-  const { connection } = useConnection();
-  const [polls, setPolls] = useState<VotingData | null>(null);
+const PollList: React.FC = () => {
+  const { polls, loading, error } = usePollData();
 
-  useEffect(() => {
-    // async function fetchPollData() {
-    //   const data = await program.account.votingData.fetch(votingDataPDA);
-    //   setPolls(data);
-    // }
-
-    program.account.votingData
-      .fetch(votingDataPDA)
-      .then((data) => {
-        console.log("Fetched data:", data);
-        setPolls(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-
-    // fetchPollData();
-
-    const subscriptionId = connection.onAccountChange(
-      votingDataPDA,
-      (accountInfo) => {
-        setPolls(program.coder.accounts.decode("votingData", accountInfo.data));
-      }
-    );
-
-    return () => {
-      // Unsubscribe from account change
-      connection.removeAccountChangeListener(subscriptionId);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [program]);
+  if (loading) return <p>Loading polls...</p>;
+  if (error) return <p>Error loading polls: {error}</p>;
 
   return (
-    <div>
-      <h2>Poll List</h2>
-      {polls ? (
-        <div>
-          <p>Poll PDA: {votingDataPDA.toBase58()}</p>
-          <p>Votes: {polls.voteCounts.join(", ")}</p>
-        </div>
+    <div className="poll-list">
+      {polls.length > 0 ? (
+        polls.map((poll) => <PollItem key={poll.pollTitle} poll={poll} />)
       ) : (
-        <p>Loading polls...</p>
+        <p>No polls available.</p>
       )}
     </div>
   );

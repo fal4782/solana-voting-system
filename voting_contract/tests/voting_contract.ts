@@ -36,24 +36,24 @@ describe("voting_contract", () => {
     await program.provider.connection.confirmTransaction(airdropSignature);
   });
 
-  it("Creates a poll!", async () => {
-    const tx = await program.methods
-      .createPoll(pollTitle, options, expiration)
-      .accounts({
-        pollData: pollDataPda,
-        user: creatorWallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .signers([creatorWallet.payer]) // Ensure to sign with the creator's wallet
-      .rpc();
+    it("Creates a poll!", async () => {
+        const tx = await program.methods
+        .createPoll(pollTitle, options, expiration)
+        .accounts({
+            pollData: pollDataPda,
+            user: creatorWallet.publicKey,
+            systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .signers([creatorWallet.payer]) // Ensure to sign with the creator's wallet
+        .rpc();
 
-    console.log("Create Poll Transaction Signature:", tx);
+        console.log("Create Poll Transaction Signature:", tx);
 
-    const pollData = await program.account.pollData.fetch(pollDataPda);
-    assert.equal(pollData.pollTitle, pollTitle);
-    assert.deepEqual(pollData.options, options);
-    assert.equal(pollData.isActive, true);
-  });
+        const pollData = await program.account.pollData.fetch(pollDataPda);
+        assert.equal(pollData.pollTitle, pollTitle);
+        assert.deepEqual(pollData.options, options);
+        assert.equal(pollData.isActive, true);
+    });
 
   it("Casts a vote!", async () => {
     const candidateIndex = 1; // Voting for "Option 2"
