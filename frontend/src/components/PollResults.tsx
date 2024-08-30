@@ -1,22 +1,34 @@
+// components/PollResults.tsx
 import React from "react";
 
-interface PollResultProps {
-  results: { option: string; votes: number }[];
+interface PollResultsProps {
+  options: string[];
+  voteCounts: number[];
 }
 
-const PollResult: React.FC<PollResultProps> = ({ results }) => {
+const PollResults: React.FC<PollResultsProps> = ({ options, voteCounts }) => {
+  const totalVotes = voteCounts.reduce((sum, count) => sum + count, 0);
+
   return (
-    <div>
-      <h2>Poll Results</h2>
-      <ul>
-        {results.map((result, index) => (
-          <li key={index}>
-            {result.option}: {result.votes} votes
-          </li>
-        ))}
-      </ul>
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold">Poll Results</h2>
+      {options.map((option, index) => (
+        <div key={index} className="bg-white p-4 rounded shadow">
+          <p>{option}</p>
+          <div className="w-full bg-gray-200 rounded">
+            <div
+              className="bg-blue-500 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded"
+              style={{ width: `${(voteCounts[index] / totalVotes) * 100}%` }}
+            >
+              {voteCounts[index]} votes (
+              {((voteCounts[index] / totalVotes) * 100).toFixed(2)}%)
+            </div>
+          </div>
+        </div>
+      ))}
+      <p className="font-bold">Total Votes: {totalVotes}</p>
     </div>
   );
 };
 
-export default PollResult;
+export default PollResults;

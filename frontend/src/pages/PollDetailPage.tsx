@@ -1,99 +1,88 @@
-import React, { useState, useEffect } from "react";
-import { useProgram } from "../hooks/useProgram"; // Custom hook to interact with the smart contract
-import EndPollButton from "../components/EndPollButton";
-import PollResult from "../components/PollResults";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useVotingContractInteractions } from "../hooks/useVotingContractInteractions";
+import VotingForm from "../components/VotingForm";
+import PollResults from "../components/PollResults";
+import Header from "../components/Header";
 
-interface PollDetailsProps {
-  pollId: string;
-}
-
-const PollDetails: React.FC<PollDetailsProps> = ({ pollId }) => {
-  const { program, connection, findPollDataPDA } = useProgram();
-  const [isEnding, setIsEnding] = useState(false);
-  const [isCreator, setIsCreator] = useState(false);
-  const [results, setResults] = useState<{ option: string; votes: number }[]>(
-    []
-  );
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [poll, setPoll] = useState<any>(null); 
+const PollDetailPage: React.FC = () => {
+  const { pollTitle } = useParams<{ pollTitle: string }>();
+  const { getPollDetails, vote, endPoll } = useVotingContractInteractions();
+  const [pollDetails, setPollDetails] = useState<any>(null);
 
   useEffect(() => {
     const fetchPollDetails = async () => {
-      try {
-        const pollPDA = await findPollDataPDA(pollId);
-        const pollData = await program.account.pollData.fetch(pollPDA);
-
-        setPoll(pollData);
-
-        // Check if the current user is the creator
-        const creator = pollData.pollCreator.toBase58();
-        const currentUserPublicKey = (
-          await connection.getAccountInfo(program.provider.wallet.publicKey)
-        )?.owner.toBase58();
-        setIsCreator(creator === currentUserPublicKey);
-
-        // Fetch results
-        const resultsData = await program.methods
-          .getResults(pollId)
-          .accounts({
-            pollData: pollPDA,
-          })
-          .rpc();
-
-        setResults(resultsData);
-      } catch (error) {
-        console.error("Failed to fetch poll details", error);
+      if (pollTitle) {
+        try {
+          const details = await getPollDetails(pollTitle);
+          setPollDetails(details);
+        } catch (error) {
+          console.error("Error fetching poll details:", error);
+        }
       }
     };
 
     fetchPollDetails();
-  }, [pollId, program, connection, findPollDataPDA]);
+  }, [pollTitle, getPollDetails]);
 
-  const handleEndPoll = async () => {
-    if (!isCreator) return;
-    setIsEnding(true);
-    try {
-      const pollPDA = await findPollDataPDA(pollId);
-      await program.methods
-        .endPoll(pollId)
-        .accounts({
-          pollData: pollPDA,
-          
-        })
-        .rpc();
-      console.log("Poll ended successfully");
-      // Optionally, refetch poll details to update the UI
-    } catch (error) {
-      console.error("Failed to end poll", error);
-    } finally {
-      setIsEnding(false);
+  const handleVote = async (candidateIndex: number) => {
+    if (pollTitle) {
+      try {
+        await vote(pollTitle, candidateIndex);
+        // Refresh poll details after voting
+        const updatedDetails = await getPollDetails(pollTitle);
+        setPollDetails(updatedDetails);
+      } catch (error) {
+        console.error("Error voting:", error);
+      }
     }
   };
 
+  const handleEndPoll = async () => {
+    if (pollTitle) {
+      try {
+        await endPoll(pollTitle);
+        // Refresh poll details after ending the poll
+        const updatedDetails = await getPollDetails(pollTitle);
+        setPollDetails(updatedDetails);
+      } catch (error) {
+        console.error("Error ending poll:", error);
+      }
+    }
+  };
+
+  if (!pollDetails) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
-      <h1>Poll Details</h1>
-      {/* Render poll details */}
-      {poll && (
-        <>
-          <div>
-            <h2>{poll.title}</h2>
-            <p>Created by: {poll.creator.toBase58()}</p>
-            <p>
-              Expiration:{" "}
-              {new Date(poll.expiration.toNumber() * 1000).toLocaleString()}
-            </p>
-          </div>
-          <EndPollButton
-            onEndPoll={handleEndPoll}
-            isEnding={isEnding}
-            isCreator={isCreator}
+      <Header />
+      <main className="container mx-auto mt-8">
+        <h1 className="text-3xl font-bold mb-4">{pollDetails.title}</h1>
+        <p>Created by: {pollDetails.creator}</p>
+        <p>
+          Expiration: {new Date(pollDetails.expiration * 1000).toLocaleString()}
+        </p>
+        {pollDetails.isActive ? (
+          <>
+            <VotingForm options={pollDetails.options} onVote={handleVote} />
+            <button
+              onClick={handleEndPoll}
+              className="mt-4 bg-red-500 text-white p-2 rounded"
+            >
+              End Poll
+            </button>
+          </>
+        ) : (
+          <PollResults
+            options={pollDetails.options}
+            voteCounts={pollDetails.voteCounts}
           />
-          <PollResult results={results} />
-        </>
-      )}
+        )}
+      </main>
     </div>
   );
 };
 
-export default PollDetails;
+export default PollDetailPage;

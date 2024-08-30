@@ -1,22 +1,30 @@
 // components/PollList.tsx
 import React from "react";
-import { usePollData } from "../hooks/usePollData";
-import PollItem from "./PollItem";
+import { Link } from "react-router-dom";
 
-const PollList: React.FC = () => {
-  const { polls, loading, error } = usePollData();
+interface Poll {
+  title: string;
+  publicKey: string;
+}
 
-  if (loading) return <p>Loading polls...</p>;
-  if (error) return <p>Error loading polls: {error}</p>;
+interface PollListProps {
+  polls: Poll[];
+}
 
+const PollList: React.FC<PollListProps> = ({ polls }) => {
   return (
-    <div className="poll-list">
-      {polls.length > 0 ? (
-        polls.map((poll) => <PollItem key={poll.pollTitle} poll={poll} />)
-      ) : (
-        <p>No polls available.</p>
-      )}
-    </div>
+    <ul className="space-y-2">
+      {polls.map((poll) => (
+        <li key={poll.publicKey} className="bg-white p-4 rounded shadow">
+          <Link
+            to={`/poll/${poll.title}`}
+            className="text-blue-600 hover:underline"
+          >
+            {poll.title}
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 };
 

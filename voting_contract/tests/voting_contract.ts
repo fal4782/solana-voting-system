@@ -8,8 +8,8 @@ describe("voting_contract", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const program = anchor.workspace.VotingContract as Program<VotingContract>;
 
-  let pollTitle = "Test Poll";
-  let options = ["Option 1", "Option 2", "Option 3"];
+  let pollTitle = "Test Poll 2";
+  let options = ["Option A", "Option B", "Option C"];
   let expiration = new anchor.BN(Date.now() / 1000 + 86400); // 1 day from now
   let pollDataPda: anchor.web3.PublicKey;
   let pollBump: number;
