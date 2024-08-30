@@ -1,25 +1,19 @@
 import { useProgram } from "../context/ProgramContext";
-import { useWallet } from "@solana/wallet-adapter-react";
-import {
-  PublicKey,
-  // Transaction
-} from "@solana/web3.js";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { PublicKey } from "@solana/web3.js";
 import { BN } from "@coral-xyz/anchor";
 
 export const useVotingContractInteractions = () => {
-  const {
-    program,
-    // connection,
-    findPollDataPDA,
-  } = useProgram();
-  const wallet = useWallet();
+  const { program, findPollDataPDA } = useProgram();
+  const wallet = useAnchorWallet();
 
   const createPoll = async (
     pollTitle: string,
     options: string[],
     expirationInSeconds: number
   ) => {
-    if (!wallet.publicKey) throw new Error("Wallet not connected");
+    if (!program || !wallet)
+      throw new Error("Wallet not connected or program not initialized");
 
     const pollDataPDA = findPollDataPDA(pollTitle);
     const expiration = new BN(
@@ -45,7 +39,8 @@ export const useVotingContractInteractions = () => {
   };
 
   const vote = async (pollTitle: string, candidateIndex: number) => {
-    if (!wallet.publicKey) throw new Error("Wallet not connected");
+    if (!program || !wallet)
+      throw new Error("Wallet not connected or program not initialized");
 
     const pollDataPDA = findPollDataPDA(pollTitle);
 
@@ -67,7 +62,8 @@ export const useVotingContractInteractions = () => {
   };
 
   const endPoll = async (pollTitle: string) => {
-    if (!wallet.publicKey) throw new Error("Wallet not connected");
+    if (!program || !wallet)
+      throw new Error("Wallet not connected or program not initialized");
 
     const pollDataPDA = findPollDataPDA(pollTitle);
 
@@ -92,7 +88,7 @@ export const useVotingContractInteractions = () => {
     const pollDataPDA = findPollDataPDA(pollTitle);
 
     try {
-      const pollData = await program.account.pollData.fetch(pollDataPDA);
+      const pollData = await program!.account.pollData.fetch(pollDataPDA);
       return {
         title: pollData.pollTitle,
         options: pollData.options,
@@ -109,7 +105,7 @@ export const useVotingContractInteractions = () => {
 
   const listAllPolls = async () => {
     try {
-      const allPollAccounts = await program.account.pollData.all();
+      const allPollAccounts = await program!.account.pollData.all();
       return allPollAccounts.map((account) => ({
         title: account.account.pollTitle,
         publicKey: account.publicKey.toString(),
@@ -124,7 +120,7 @@ export const useVotingContractInteractions = () => {
     const pollDataPDA = findPollDataPDA(pollTitle);
 
     try {
-      const pollData = await program.account.pollData.fetch(pollDataPDA);
+      const pollData = await program!.account.pollData.fetch(pollDataPDA);
       return {
         title: pollData.pollTitle,
         creator: pollData.pollCreator.toString(),
