@@ -116,7 +116,7 @@ export type VotingContract = {
       accounts: [
         {
           name: "pollData";
-          isMut: false;
+          isMut: true;
           isSigner: false;
           pda: {
             seeds: [
@@ -135,6 +135,37 @@ export type VotingContract = {
           type: "string";
         }
       ];
+    },
+    {
+      name: "hasVoted";
+      accounts: [
+        {
+          name: "pollData";
+          isMut: false;
+          isSigner: false;
+          pda: {
+            seeds: [
+              {
+                kind: "arg";
+                type: "string";
+                path: "poll_title";
+              }
+            ];
+          };
+        },
+        {
+          name: "user";
+          isMut: false;
+          isSigner: true;
+        }
+      ];
+      args: [
+        {
+          name: "pollTitle";
+          type: "string";
+        }
+      ];
+      returns: "bool";
     }
   ];
   accounts: [
@@ -174,6 +205,12 @@ export type VotingContract = {
           {
             name: "createdAt";
             type: "i64";
+          },
+          {
+            name: "voters";
+            type: {
+              vec: "publicKey";
+            };
           }
         ];
       };
@@ -209,6 +246,11 @@ export type VotingContract = {
       code: 6005;
       name: "PollNotEnded";
       msg: "Poll is still active";
+    },
+    {
+      code: 6006;
+      name: "AlreadyVoted";
+      msg: "User has already voted in this poll";
     }
   ];
 };
@@ -331,7 +373,7 @@ export const IDL: VotingContract = {
       accounts: [
         {
           name: "pollData",
-          isMut: false,
+          isMut: true,
           isSigner: false,
           pda: {
             seeds: [
@@ -350,6 +392,37 @@ export const IDL: VotingContract = {
           type: "string",
         },
       ],
+    },
+    {
+      name: "hasVoted",
+      accounts: [
+        {
+          name: "pollData",
+          isMut: false,
+          isSigner: false,
+          pda: {
+            seeds: [
+              {
+                kind: "arg",
+                type: "string",
+                path: "poll_title",
+              },
+            ],
+          },
+        },
+        {
+          name: "user",
+          isMut: false,
+          isSigner: true,
+        },
+      ],
+      args: [
+        {
+          name: "pollTitle",
+          type: "string",
+        },
+      ],
+      returns: "bool",
     },
   ],
   accounts: [
@@ -390,6 +463,12 @@ export const IDL: VotingContract = {
             name: "createdAt",
             type: "i64",
           },
+          {
+            name: "voters",
+            type: {
+              vec: "publicKey",
+            },
+          },
         ],
       },
     },
@@ -424,6 +503,11 @@ export const IDL: VotingContract = {
       code: 6005,
       name: "PollNotEnded",
       msg: "Poll is still active",
+    },
+    {
+      code: 6006,
+      name: "AlreadyVoted",
+      msg: "User has already voted in this poll",
     },
   ],
 };

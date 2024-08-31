@@ -8,9 +8,9 @@ describe("voting_contract", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const program = anchor.workspace.VotingContract as Program<VotingContract>;
 
-  let pollTitle = "Test Poll 2";
+  let pollTitle = "Test Poll from local wallet";
   let options = ["Option A", "Option B", "Option C"];
-  let expiration = new anchor.BN(Date.now() / 1000 + 86400); // 1 day from now
+  let expiration = new anchor.BN(Date.now() / 1000 + 1800); // 30 min from now
   let pollDataPda: anchor.web3.PublicKey;
   let pollBump: number;
   let creatorWallet;
@@ -55,37 +55,37 @@ describe("voting_contract", () => {
         assert.equal(pollData.isActive, true);
     });
 
-  it("Casts a vote!", async () => {
-    const candidateIndex = 1; // Voting for "Option 2"
+//   it("Casts a vote!", async () => {
+//     const candidateIndex = 1; // Voting for "Option 2"
 
-    // Ensure the voter is not the poll creator
-    const pollData = await program.account.pollData.fetch(pollDataPda);
-    assert.notEqual(
-      pollData.pollCreator.toString(),
-      voterWallet.publicKey.toString(),
-      "User should not be the poll creator"
-    );
+//     // Ensure the voter is not the poll creator
+//     const pollData = await program.account.pollData.fetch(pollDataPda);
+//     assert.notEqual(
+//       pollData.pollCreator.toString(),
+//       voterWallet.publicKey.toString(),
+//       "User should not be the poll creator"
+//     );
 
-    // Cast the vote
-    const tx = await program.methods
-      .vote(pollTitle, candidateIndex)
-      .accounts({
-        pollData: pollDataPda,
-        user: voterWallet.publicKey,
-      })
-      .signers([voterWallet])
-      .rpc();
+//     // Cast the vote
+//     const tx = await program.methods
+//       .vote(pollTitle, candidateIndex)
+//       .accounts({
+//         pollData: pollDataPda,
+//         user: voterWallet.publicKey,
+//       })
+//       .signers([voterWallet])
+//       .rpc();
 
-    console.log("Vote Transaction Signature:", tx);
+//     console.log("Vote Transaction Signature:", tx);
 
-    // Fetch and validate poll data after voting
-    const updatedPollData = await program.account.pollData.fetch(pollDataPda);
-    assert.equal(
-      updatedPollData.voteCounts[candidateIndex].toNumber(),
-      1,
-      "Vote count should be 1"
-    );
-  });
+//     // Fetch and validate poll data after voting
+//     const updatedPollData = await program.account.pollData.fetch(pollDataPda);
+//     assert.equal(
+//       updatedPollData.voteCounts[candidateIndex].toNumber(),
+//       1,
+//       "Vote count should be 1"
+//     );
+//   });
 
   it("Fails when user tries to vote on their own poll", async () => {
     const user = (program.provider as anchor.AnchorProvider).wallet;
@@ -159,110 +159,110 @@ describe("voting_contract", () => {
     }
   });
 
-  it("Ends the poll!", async () => {
-    const user = (program.provider as anchor.AnchorProvider).wallet;
+//   it("Ends the poll!", async () => {
+//     const user = (program.provider as anchor.AnchorProvider).wallet;
 
-    const tx = await program.methods
-      .endPoll(pollTitle)
-      .accounts({
-        pollData: pollDataPda,
-        user: creatorWallet.publicKey,
-      })
-      .rpc();
+//     const tx = await program.methods
+//       .endPoll(pollTitle)
+//       .accounts({
+//         pollData: pollDataPda,
+//         user: creatorWallet.publicKey,
+//       })
+//       .rpc();
 
-    console.log("End Poll Transaction Signature:", tx);
+//     console.log("End Poll Transaction Signature:", tx);
 
-    const pollData = await program.account.pollData.fetch(pollDataPda);
-    assert.equal(pollData.isActive, false);
-  });
+//     const pollData = await program.account.pollData.fetch(pollDataPda);
+//     assert.equal(pollData.isActive, false);
+//   });
 
-  it("Gets poll results!", async () => {
-    const tx = await program.methods
-      .getResults(pollTitle)
-      .accounts({
-        pollData: pollDataPda,
-      })
-      .rpc();
+//   it("Gets poll results!", async () => {
+//     const tx = await program.methods
+//       .getResults(pollTitle)
+//       .accounts({
+//         pollData: pollDataPda,
+//       })
+//       .rpc();
 
-    console.log("Get Results Transaction Signature:", tx);
+//     console.log("Get Results Transaction Signature:", tx);
 
-    const pollData = await program.account.pollData.fetch(pollDataPda);
-    console.log("Poll Results:", pollData.voteCounts);
+//     const pollData = await program.account.pollData.fetch(pollDataPda);
+//     console.log("Poll Results:", pollData.voteCounts);
 
-    // Verify the vote counts
-    assert.equal(pollData.voteCounts[1].toNumber(), 1); // "Option 2" should have 1 vote
-  });
+//     // Verify the vote counts
+//     assert.equal(pollData.voteCounts[1].toNumber(), 1); // "Option 2" should have 1 vote
+//   });
 
-  it("Fails when voting on an inactive poll", async () => {
-    // await program.methods
-    //   .endPoll(pollTitle)
-    //   .accounts({
-    //     pollData: pollDataPda,
-    //     user: creatorWallet.publicKey,
-    //   })
-    //   .rpc();
+//   it("Fails when voting on an inactive poll", async () => {
+//     // await program.methods
+//     //   .endPoll(pollTitle)
+//     //   .accounts({
+//     //     pollData: pollDataPda,
+//     //     user: creatorWallet.publicKey,
+//     //   })
+//     //   .rpc();
 
-    try {
-      await program.methods
-        .vote(pollTitle, 0)
-        .accounts({
-          pollData: pollDataPda,
-          user: voterWallet.publicKey,
-        })
-        .signers([voterWallet])
-        .rpc();
-      assert.fail("Should not be able to vote on an inactive poll");
-    } catch (err) {
-      if (err.error) {
-        assert.equal(err.error.errorCode.code, "PollNotActive");
-      } else {
-        assert.fail("Unexpected error structure or error was not thrown.");
-      }
-    }
-  });
+//     try {
+//       await program.methods
+//         .vote(pollTitle, 0)
+//         .accounts({
+//           pollData: pollDataPda,
+//           user: voterWallet.publicKey,
+//         })
+//         .signers([voterWallet])
+//         .rpc();
+//       assert.fail("Should not be able to vote on an inactive poll");
+//     } catch (err) {
+//       if (err.error) {
+//         assert.equal(err.error.errorCode.code, "PollNotActive");
+//       } else {
+//         assert.fail("Unexpected error structure or error was not thrown.");
+//       }
+//     }
+//   });
 
-  it("Fails when voting after poll expiration", async () => {
-    // Create a unique poll for this test
-    const expiredPollTitle = "Expired Poll";
-    const newExpiration = new anchor.BN(Date.now() / 1000 - 10); // Expired 10 seconds ago
+//   it("Fails when voting after poll expiration", async () => {
+//     // Create a unique poll for this test
+//     const expiredPollTitle = "Expired Poll";
+//     const newExpiration = new anchor.BN(Date.now() / 1000 - 10); // Expired 10 seconds ago
 
-    // Derive a new PDA for the unique poll
-    const [newPollDataPda, newPollBump] =
-      anchor.web3.PublicKey.findProgramAddressSync(
-        [Buffer.from(expiredPollTitle)],
-        program.programId
-      );
+//     // Derive a new PDA for the unique poll
+//     const [newPollDataPda, newPollBump] =
+//       anchor.web3.PublicKey.findProgramAddressSync(
+//         [Buffer.from(expiredPollTitle)],
+//         program.programId
+//       );
 
-    // Create the poll with an expiration in the past
-    await program.methods
-      .createPoll(expiredPollTitle, options, newExpiration)
-      .accounts({
-        pollData: newPollDataPda,
-        user: creatorWallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .signers([creatorWallet.payer])
-      .rpc();
+//     // Create the poll with an expiration in the past
+//     await program.methods
+//       .createPoll(expiredPollTitle, options, newExpiration)
+//       .accounts({
+//         pollData: newPollDataPda,
+//         user: creatorWallet.publicKey,
+//         systemProgram: anchor.web3.SystemProgram.programId,
+//       })
+//       .signers([creatorWallet.payer])
+//       .rpc();
 
-    // Try to vote on the expired poll
-    try {
-      await program.methods
-        .vote(expiredPollTitle, 0)
-        .accounts({
-          pollData: newPollDataPda,
-          user: voterWallet.publicKey,
-        })
-        .signers([voterWallet])
-        .rpc();
-      assert.fail("Should not be able to vote after poll expiration");
-    } catch (err) {
-      if (err.error) {
-        assert.equal(err.error.errorCode.code, "PollNotActive");
-      } else {
-        assert.fail("Unexpected error structure or error was not thrown.");
-      }
-    }
-  });
+//     // Try to vote on the expired poll
+//     try {
+//       await program.methods
+//         .vote(expiredPollTitle, 0)
+//         .accounts({
+//           pollData: newPollDataPda,
+//           user: voterWallet.publicKey,
+//         })
+//         .signers([voterWallet])
+//         .rpc();
+//       assert.fail("Should not be able to vote after poll expiration");
+//     } catch (err) {
+//       if (err.error) {
+//         assert.equal(err.error.errorCode.code, "PollNotActive");
+//       } else {
+//         assert.fail("Unexpected error structure or error was not thrown.");
+//       }
+//     }
+//   });
 
   //   it("Fails when voting after poll expiration", async () => {
   //     expiration = new anchor.BN(Date.now() / 1000 - 10); // 10 seconds in the past

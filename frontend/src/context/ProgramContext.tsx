@@ -32,7 +32,7 @@ export const ProgramProvider: React.FC<{ children: ReactNode }> = ({
       });
       return new Program<VotingContract>(
         IDL,
-        new PublicKey("9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc"),
+        new PublicKey("ciRCGvKBr6Gz8pjdyQf9XCnodBNucAjN11sXzw2FJSw"),
         provider
       );
     }

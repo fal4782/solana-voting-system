@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc");
+declare_id!("ciRCGvKBr6Gz8pjdyQf9XCnodBNucAjN11sXzw2FJSw");
 
 #[program]
 pub mod voting_contract {
@@ -20,13 +20,15 @@ pub mod voting_contract {
         poll_data.expiration = expiration;
         poll_data.is_active = true;
         poll_data.created_at = Clock::get()?.unix_timestamp;
+        poll_data.voters = Vec::new();
 
         Ok(())
     }
 
     pub fn vote(ctx: Context<Vote>, poll_title: String, candidate_index: u16) -> Result<()> {
         let poll_data = &mut ctx.accounts.poll_data;
-
+        let current_time = Clock::get()?.unix_timestamp;
+    
         require!(
             poll_data.poll_creator != ctx.accounts.user.key(),
             ErrorCode::CannotVoteOnOwnPoll
@@ -39,11 +41,22 @@ pub mod voting_contract {
             (candidate_index as usize) < poll_data.options.len(),
             ErrorCode::InvalidCandidate
         );
-
+        require!(
+            !poll_data.voters.contains(&ctx.accounts.user.key()), // Check for existence in Vec
+            ErrorCode::AlreadyVoted
+        );
+    
         poll_data.vote_counts[candidate_index as usize] += 1;
-
+        poll_data.voters.push(ctx.accounts.user.key()); // Add to Vec
+    
+        // Check if the poll has expired and update is_active if necessary
+        if current_time >= poll_data.expiration {
+            poll_data.is_active = false;
+        }
+    
         Ok(())
     }
+    
 
     pub fn end_poll(ctx: Context<EndPoll>, poll_title: String) -> Result<()> {
         let poll_data = &mut ctx.accounts.poll_data;
@@ -60,7 +73,13 @@ pub mod voting_contract {
     }
 
     pub fn get_results(ctx: Context<GetResults>, poll_title: String) -> Result<()> {
-        let poll_data = &ctx.accounts.poll_data;
+        let poll_data = &mut ctx.accounts.poll_data;        
+        let current_time = Clock::get()?.unix_timestamp;
+
+        // Update is_active if the poll has expired
+        if current_time >= poll_data.expiration && poll_data.is_active {
+            poll_data.is_active = false;
+        }        
 
         require!(!poll_data.is_active, ErrorCode::PollNotEnded);
 
@@ -71,6 +90,12 @@ pub mod voting_contract {
 
         Ok(())
     }
+
+    pub fn has_voted(ctx: Context<HasVoted>, poll_title: String) -> Result<bool> {
+        let poll_data = &ctx.accounts.poll_data;
+        Ok(poll_data.voters.contains(&ctx.accounts.user.key())) // Vec operation remains the same
+    }
+    
 }
 
 #[derive(Accounts)]
@@ -81,7 +106,7 @@ pub struct CreatePoll<'info> {
         seeds = [poll_title.as_bytes()],
         bump,
         payer = user,
-        space = 8 + 32 + (4 + 200) * 10 + 8 * 10 + 8 + 1 + 8 + 8
+        space = 8 + 32 + (4 + 200) * 10 + 8 * 10 + 8 + 1 + 8 + 8 + 32 * 100 // Increased space for voters   
     )]
     pub poll_data: Account<'info, PollData>,
     #[account(mut)]
@@ -119,10 +144,22 @@ pub struct EndPoll<'info> {
 #[instruction(poll_title: String)]
 pub struct GetResults<'info> {
     #[account(
+        mut,
         seeds = [poll_title.as_bytes()],
         bump
     )]
     pub poll_data: Account<'info, PollData>,
+}
+
+#[derive(Accounts)]
+#[instruction(poll_title: String)]
+pub struct HasVoted<'info> {
+    #[account(
+        seeds = [poll_title.as_bytes()],
+        bump
+    )]
+    pub poll_data: Account<'info, PollData>,
+    pub user: Signer<'info>,
 }
 
 #[account]
@@ -134,7 +171,9 @@ pub struct PollData {
     pub expiration: i64,
     pub is_active: bool,
     pub created_at: i64,
+    pub voters: Vec<Pubkey>, // Changed from HashSet to Vec
 }
+
 
 #[error_code]
 pub enum ErrorCode {
@@ -150,4 +189,6 @@ pub enum ErrorCode {
     PollAlreadyEnded,
     #[msg("Poll is still active")]
     PollNotEnded,
+    #[msg("User has already voted in this poll")]
+    AlreadyVoted,
 }

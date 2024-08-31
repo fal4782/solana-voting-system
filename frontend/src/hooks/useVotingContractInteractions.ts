@@ -88,17 +88,49 @@ export const useVotingContractInteractions = () => {
     const pollDataPDA = findPollDataPDA(pollTitle);
 
     try {
+      const tx = await program!.methods
+        .getResults(pollTitle)
+        .accounts({
+          pollData: pollDataPDA,
+        })
+        .rpc();
+
+      console.log("Results fetched successfully. Transaction signature:", tx);
+
+      // Fetch the updated poll data
       const pollData = await program!.account.pollData.fetch(pollDataPDA);
       return {
         title: pollData.pollTitle,
         options: pollData.options,
-        voteCounts: pollData.voteCounts.map((count) => count.toNumber()),
+        voteCounts: pollData.voteCounts.map((count: BN) => count.toNumber()),
         isActive: pollData.isActive,
         expiration: pollData.expiration.toNumber(),
         createdAt: pollData.createdAt.toNumber(),
       };
     } catch (error) {
       console.error("Error fetching poll results:", error);
+      throw error;
+    }
+  };
+
+  const hasVoted = async (pollTitle: string) => {
+    if (!program || !wallet)
+      throw new Error("Wallet not connected or program not initialized");
+
+    const pollDataPDA = findPollDataPDA(pollTitle);
+
+    try {
+      const hasVoted = await program.methods
+        .hasVoted(pollTitle)
+        .accounts({
+          pollData: pollDataPDA,
+          user: wallet.publicKey,
+        })
+        .view();
+
+      return hasVoted;
+    } catch (error) {
+      console.error("Error checking if user has voted:", error);
       throw error;
     }
   };
@@ -130,7 +162,7 @@ export const useVotingContractInteractions = () => {
         title: pollData.pollTitle,
         creator: pollData.pollCreator.toString(),
         options: pollData.options,
-        voteCounts: pollData.voteCounts.map((count) => count.toNumber()),
+        voteCounts: pollData.voteCounts.map((count: BN) => count.toNumber()),
         isActive: pollData.isActive,
         expiration: pollData.expiration.toNumber(),
         createdAt: pollData.createdAt.toNumber(),
@@ -146,6 +178,7 @@ export const useVotingContractInteractions = () => {
     vote,
     endPoll,
     getResults,
+    hasVoted,
     listAllPolls,
     getPollDetails,
   };

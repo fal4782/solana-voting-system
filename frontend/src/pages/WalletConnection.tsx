@@ -14,10 +14,10 @@ const WalletConnection: React.FC = () => {
   }, [connected, navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6">Connect Your Wallet</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">
+      <h1 className="text-3xl font-bold mb-6 text-white">Connect Your Wallet</h1>
       <WalletMultiButton />
-      <p className="mt-4 text-sm text-gray-600">
+      <p className="mt-4 text-sm text-gray-300">
         Don't have a wallet?{" "}
         <a
           href="https://www.backpack.app/"
