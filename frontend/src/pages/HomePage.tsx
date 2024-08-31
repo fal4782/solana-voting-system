@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
   return (
     <div>
       <Header />
-      <main className="container mx-auto mt-8">
+      <main className="container mx-auto mt-20 p-4">
         <h1 className="text-3xl font-bold mb-4">All Polls</h1>
         <PollList polls={polls} />
       </main>

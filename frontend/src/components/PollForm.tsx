@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// components/PollForm.tsx
 import React, { useState } from "react";
 import Alert from "./Alert";
 
@@ -14,7 +13,7 @@ interface PollFormProps {
 const PollForm: React.FC<PollFormProps> = ({ onSubmit }) => {
   const [title, setTitle] = useState("");
   const [options, setOptions] = useState(["", ""]);
-  const [expirationDays, setExpirationDays] = useState<number>(); // Default to 1 day
+  const [expirationDays, setExpirationDays] = useState<number>(); // Default to empty so we can see the placeholder
   const [alert, setAlert] = useState<{
     message: string;
     type: "success" | "error";
@@ -40,13 +39,12 @@ const PollForm: React.FC<PollFormProps> = ({ onSubmit }) => {
 
   const handleRemoveOption = (index: number) => {
     if (options.length > 2) {
-      const newOptions = options.filter((_, i) => i !== index);
-      setOptions(newOptions);
+      setOptions(options.filter((_, i) => i !== index));
     }
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-lg mx-auto p-4 border rounded-lg shadow-md bg-white">
       {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
@@ -54,8 +52,9 @@ const PollForm: React.FC<PollFormProps> = ({ onSubmit }) => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Poll Title"
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           required
+          autoFocus
         />
         {options.map((option, index) => (
           <div key={index} className="flex items-center space-x-2">
@@ -68,13 +67,15 @@ const PollForm: React.FC<PollFormProps> = ({ onSubmit }) => {
                 setOptions(newOptions);
               }}
               placeholder={`Option ${index + 1}`}
-              className="flex-grow p-2 border rounded"
+              className="flex-grow p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
             <button
               type="button"
               onClick={() => handleRemoveOption(index)}
-              className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600"
+              className={`text-red-500 p-2 rounded-md border border-red-500 hover:bg-red-100 ${
+                options.length <= 2 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               disabled={options.length <= 2}
             >
               ✕
@@ -84,7 +85,7 @@ const PollForm: React.FC<PollFormProps> = ({ onSubmit }) => {
         <button
           type="button"
           onClick={handleAddOption}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
         >
           Add Option
         </button>
@@ -93,13 +94,13 @@ const PollForm: React.FC<PollFormProps> = ({ onSubmit }) => {
           min="1"
           value={expirationDays}
           onChange={(e) => setExpirationDays(Number(e.target.value))}
-          placeholder="Expiration (in days)"
-          className="w-full p-2 border rounded"
+          placeholder="Expiration (days)"
+          className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           required
         />
         <button
           type="submit"
-          className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
+          className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600"
         >
           Create Poll
         </button>

@@ -69,7 +69,11 @@ const PollDetailPage: React.FC = () => {
   };
 
   if (!pollDetails) {
-    return <div className="absolute top-1/2 right-1/2">Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
   const isCreator = publicKey && pollDetails.creator === publicKey.toString();
@@ -77,25 +81,29 @@ const PollDetailPage: React.FC = () => {
   return (
     <div>
       <Header />
-      <main className="container mx-auto mt-8 px-4">
+      <main className="container mx-auto mt-24 px-4">
         {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
-        <h1 className="text-3xl font-bold mb-4">{pollDetails.title}</h1>
-        <p className="mb-2">Created by: {pollDetails.creator}</p>
-        <p className="mb-4">
-          Expiration: {new Date(pollDetails.expiration * 1000).toLocaleString()}
+        <h1 className="text-2xl font-bold mb-2 text-gray-800">
+          {pollDetails.title}
+        </h1>
+        <p className="text-sm text-gray-600 mb-2">
+          Created by: {pollDetails.creator}
+        </p>
+        <p className="text-sm text-gray-600 mb-6">
+          Expiring on:{" "}
+          {new Date(pollDetails.expiration * 1000).toLocaleString()}
         </p>
         {pollDetails.isActive ? (
-          <>
+          isCreator ? (
+            <button
+              onClick={handleEndPoll}
+              className="mt-4 w-1/3 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition-colors duration-200"
+            >
+              End Poll
+            </button>
+          ) : (
             <VotingForm options={pollDetails.options} onVote={handleVote} />
-            {isCreator && (
-              <button
-                onClick={handleEndPoll}
-                className="mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600"
-              >
-                End Poll
-              </button>
-            )}
-          </>
+          )
         ) : (
           <PollResults
             options={pollDetails.options}

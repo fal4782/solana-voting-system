@@ -28,11 +28,17 @@ const VotingForm: React.FC<VotingFormProps> = ({ options, onVote }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div className="max-w-md mx-auto p-4 bg-white shadow-md rounded-lg">
       {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
       <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-700">
+          Choose an Option
+        </h2>
         {options.map((option, index) => (
-          <div key={index} className="flex items-center">
+          <div
+            key={index}
+            className="flex items-center p-2 bg-gray-50 rounded hover:bg-gray-100"
+          >
             <input
               type="radio"
               id={`option-${index}`}
@@ -40,14 +46,19 @@ const VotingForm: React.FC<VotingFormProps> = ({ options, onVote }) => {
               value={index}
               checked={selectedOption === index}
               onChange={() => setSelectedOption(index)}
-              className="mr-2"
+              className="mr-3 accent-blue-500 cursor-pointer"
             />
-            <label htmlFor={`option-${index}`}>{option}</label>
+            <label
+              htmlFor={`option-${index}`}
+              className="text-gray-800 cursor-pointer"
+            >
+              {option}
+            </label>
           </div>
         ))}
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:opacity-50"
+          className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50"
           disabled={selectedOption === null}
         >
           Vote
