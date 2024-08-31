@@ -1,3 +1,4 @@
+// context/ProgramContext.tsx
 import React, { createContext, useContext, ReactNode, useMemo } from "react";
 import { Program, AnchorProvider } from "@coral-xyz/anchor";
 import { Connection, PublicKey, Commitment } from "@solana/web3.js";

@@ -104,11 +104,16 @@ export const useVotingContractInteractions = () => {
   };
 
   const listAllPolls = async () => {
+    if (!program) throw new Error("Program not initialized");
+
     try {
-      const allPollAccounts = await program!.account.pollData.all();
-      return allPollAccounts.map((account) => ({
+      const pollAccounts = await program.account.pollData.all();
+      return pollAccounts.map((account) => ({
         title: account.account.pollTitle,
         publicKey: account.publicKey.toString(),
+        isActive: account.account.isActive,
+        expiration: account.account.expiration.toNumber(),
+        createdAt: account.account.createdAt.toNumber(),
       }));
     } catch (error) {
       console.error("Error listing all polls:", error);

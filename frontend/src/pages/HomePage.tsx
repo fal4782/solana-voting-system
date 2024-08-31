@@ -1,4 +1,5 @@
 // pages/HomePage.tsx
+
 import React, { useEffect, useState } from "react";
 import { useVotingContractInteractions } from "../hooks/useVotingContractInteractions";
 import PollList from "../components/PollList";
@@ -12,7 +13,7 @@ const HomePage: React.FC = () => {
     const fetchPolls = async () => {
       try {
         const allPolls = await listAllPolls();
-        setPolls(allPolls);
+        setPolls(allPolls.sort((a, b) => b.createdAt - a.createdAt));
       } catch (error) {
         console.error("Error fetching polls:", error);
       }
@@ -25,7 +26,7 @@ const HomePage: React.FC = () => {
     <div>
       <Header />
       <main className="container mx-auto mt-8">
-        <h1 className="text-3xl font-bold mb-4">Active Polls</h1>
+        <h1 className="text-3xl font-bold mb-4">All Polls</h1>
         <PollList polls={polls} />
       </main>
     </div>

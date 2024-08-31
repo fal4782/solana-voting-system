@@ -1,13 +1,11 @@
+// context/WalletProvider.tsx
 import { useMemo, FC, ReactNode } from "react";
 import {
   ConnectionProvider,
   WalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import {
-  WalletModalProvider,
-  //   WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import { clusterApiUrl } from "@solana/web3.js";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
@@ -17,6 +15,8 @@ interface WalletProviderProps {
 
 const WalletContextProvider: FC<WalletProviderProps> = ({ children }) => {
   const network = WalletAdapterNetwork.Devnet;
+  //   const alchemyRpcUrl =
+  //     "https://solana-devnet.g.alchemy.com/v2/Mqr_YROBSQUn9PnKk5oP8jUKsGk7mT0r";
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   // Add wallets you want to support (e.g., Phantom, Solflare)

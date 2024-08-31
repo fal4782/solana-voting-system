@@ -36,7 +36,7 @@ const Alert: React.FC<AlertProps> = ({ message, type, onClose }) => {
 
   return (
     <div
-      className={`fixed top-4 right-4 max-w-xs w-full border-l-4 p-4 ${bgColor} ${textColor} shadow-md rounded-md flex items-center`}
+      className={`fixed bottom-4 right-4 max-w-xs w-full border-l-4 p-4 ${bgColor} ${textColor} shadow-md rounded-md flex items-center`}
       role="alert"
     >
       <p className="flex-grow">{errorMessage}</p>

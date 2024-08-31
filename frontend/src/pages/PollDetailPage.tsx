@@ -69,7 +69,7 @@ const PollDetailPage: React.FC = () => {
   };
 
   if (!pollDetails) {
-    return <div>Loading...</div>;
+    return <div className="absolute top-1/2 right-1/2">Loading...</div>;
   }
 
   const isCreator = publicKey && pollDetails.creator === publicKey.toString();
