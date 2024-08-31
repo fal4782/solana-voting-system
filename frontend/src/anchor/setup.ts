@@ -1,16 +1,11 @@
 // anchor/setup.ts
 import { IdlAccounts, Program } from "@coral-xyz/anchor";
 import { VotingContract, IDL } from "./idl";
-import {
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-} from "@solana/web3.js";
+import { clusterApiUrl, Connection, PublicKey } from "@solana/web3.js";
 import { Buffer } from "buffer";
 
 const programId = new PublicKey("9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc");
-// const alchemyRpcUrl =
-//   "https://solana-devnet.g.alchemy.com/v2/Mqr_YROBSQUn9PnKk5oP8jUKsGk7mT0r";
+// const alchemyRpcUrl = import.meta.env.VITE_RPC_ENDPOINT as string;;
 // const connection = new Connection(alchemyRpcUrl, "confirmed");
 const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
 

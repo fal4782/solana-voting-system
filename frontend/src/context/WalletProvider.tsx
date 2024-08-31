@@ -16,7 +16,7 @@ interface WalletProviderProps {
 const WalletContextProvider: FC<WalletProviderProps> = ({ children }) => {
   const network = WalletAdapterNetwork.Devnet;
   //   const alchemyRpcUrl =
-  //     "https://solana-devnet.g.alchemy.com/v2/Mqr_YROBSQUn9PnKk5oP8jUKsGk7mT0r";
+  //     useMemo(() => process.env.REACT_APP_RPC_ENDPOINT;
   const endpoint = useMemo(() => clusterApiUrl(network), [network]);
 
   // Add wallets you want to support (e.g., Phantom, Solflare)

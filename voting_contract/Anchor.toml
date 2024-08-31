@@ -5,10 +5,10 @@ seeds = true
 skip-lint = false
 
 [programs.devnet]
-counter = "9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc"
+counter = "ciRCGvKBr6Gz8pjdyQf9XCnodBNucAjN11sXzw2FJSw"
 
 [programs.localnet]
-voting_contract = "9zqibQV12PiGUAqQae8tmmyJvkjKEs6awPXKVhjJmSCc"
+voting_contract = "ciRCGvKBr6Gz8pjdyQf9XCnodBNucAjN11sXzw2FJSw"
 
 [registry]
 url = "https://api.apr.dev"
