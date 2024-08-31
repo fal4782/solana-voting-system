@@ -1,4 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // pages/HomePage.tsx
+
+interface Poll {
+  title: string;
+  publicKey: string;
+  isActive: boolean;
+  expiration: any;
+  createdAt: any;
+}
 
 import React, { useEffect, useState } from "react";
 import { useVotingContractInteractions } from "../hooks/useVotingContractInteractions";
@@ -7,7 +16,7 @@ import Header from "../components/Header";
 
 const HomePage: React.FC = () => {
   const { listAllPolls } = useVotingContractInteractions();
-  const [polls, setPolls] = useState([]);
+  const [polls, setPolls] = useState<Poll[]>([]);
 
   useEffect(() => {
     const fetchPolls = async () => {
